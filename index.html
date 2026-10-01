@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Solid Waste Data Analytics</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f7f6;
+    color:#17332a;
+}
+
+header{
+    background:#176b4d;
+    color:white;
+    padding:25px 18px;
+    text-align:center;
+}
+
+header h1{
+    margin:0 0 8px;
+    font-size:28px;
+}
+
+header p{
+    margin:0;
+}
+
+nav{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+    background:white;
+    padding:12px;
+    position:sticky;
+    top:0;
+    z-index:5;
+    box-shadow:0 2px 8px #0001;
+}
+
+nav button{
+    border:0;
+    background:#e5f2ec;
+    color:#176b4d;
+    padding:10px 14px;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+main{
+    max-width:1100px;
+    margin:auto;
+    padding:18px;
+}
+
+.hero,
+.card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 3px 12px #00000012;
+}
+
+.hero h2{
+    margin-top:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:14px;
+}
+
+.kpi{
+    padding:18px;
+    border-radius:12px;
+    background:#eaf5ef;
+}
+
+.kpi b{
+    display:block;
+    font-size:27px;
+    color:#176b4d;
+    margin-top:6px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin:10px 0 5px;
+}
+
+input{
+    width:100%;
+    padding:11px;
+    border:1px solid #ccd8d2;
+    border-radius:8px;
+}
+
+button.primary{
+    background:#176b4d;
+    color:white;
+    border:0;
+    padding:12px 18px;
+    border-radius:8px;
+    font-weight:bold;
+    margin-top:14px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th,
+td{
+    border:1px solid #d9e1dd;
+    padding:9px;
+    text-align:center;
+}
+
+th{
+    background:#eaf5ef;
+}
+
+.chartbox{
+    position:relative;
+    height:330px;
+}
+
+.small{
+    color:#60756c;
+    font-size:14px;
+}
+
+footer{
+    text-align:center;
+    padding:25px;
+    color:#60756c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>♻️ Solid Waste Data Analytics</h1>
+    <p>Generation & Segregation Analysis Dashboard</p>
+</header>
+
+<nav>
+    <button onclick="go('home')">Home</button>
+    <button onclick="go('entry')">Data Entry</button>
+    <button onclick="go('dashboard')">Dashboard</button>
+    <button onclick="go('about')">About</button>
+</nav>
+
+<main>
+
+<!-- HOME -->
+
+<section id="home" class="page">
+
+<div class="hero">
+
+<h2>Solid Waste Generation & Segregation Data Analytics</h2>
+
+<p>
+This project collects sample waste data and uses data analytics
+and visualization to understand waste generation and segregation patterns.
+</p>
+
+<div class="grid">
+
+<div class="kpi">
+    <span>Project Type</span>
+    <b>Data Science</b>
+</div>
+
+<div class="kpi">
+    <span>Waste Categories</span>
+    <b>5</b>
+</div>
+
+<div class="kpi">
+    <span>Analysis</span>
+    <b>Dashboard</b>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>How it works</h2>
+
+<p>
+1. Enter waste data →
+2. Calculate totals →
+3. Visualize categories →
+4. Observe segregation patterns →
+5. Generate useful insights.
+</p>
+
+<p class="small">
+This website currently uses demo data. Real data can be added through the Data Entry section.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- DATA ENTRY -->
+
+<section id="entry" class="page" style="display:none">
+
+<div class="card">
+
+<h2>Enter Waste Data</h2>
+
+<div class="grid">
+
+<div>
+<label>Area / Location</label>
+<input id="area" placeholder="e.g. Chembur">
+</div>
+
+<div>
+<label>Wet Waste (kg)</label>
+<input id="wet" type="number" min="0" value="10">
+</div>
+
+<div>
+<label>Dry Waste (kg)</label>
+<input id="dry" type="number" min="0" value="7">
+</div>
+
+<div>
+<label>Plastic (kg)</label>
+<input id="plastic" type="number" min="0" value="3">
+</div>
+
+<div>
+<label>Paper (kg)</label>
+<input id="paper" type="number" min="0" value="4">
+</div>
+
+<div>
+<label>Metal (kg)</label>
+<input id="metal" type="number" min="0" value="2">
+</div>
+
+</div>
+
+<button class="primary" onclick="addData()">
+Add Data
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h3>Entered Records</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Area</th>
+<th>Wet</th>
+<th>Dry</th>
+<th>Plastic</th>
+<th>Paper</th>
+<th>Metal</th>
+<th>Total</th>
+</tr>
+
+</thead>
+
+<tbody id="rows"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="page" style="display:none">
+
+<div class="grid">
+
+<div class="kpi">
+    Total Waste (kg)
+    <b id="total">0</b>
+</div>
+
+<div class="kpi">
+    Wet Waste
+    <b id="wetTotal">0</b>
+</div>
+
+<div class="kpi">
+    Dry Waste
+    <b id="dryTotal">0</b>
+</div>
+
+<div class="kpi">
+    Records
+    <b id="records">0</b>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Waste Category Analysis</h2>
+
+<div class="chartbox">
+<canvas id="barChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Waste Composition</h2>
+
+<div class="chartbox">
+<canvas id="pieChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Key Insights</h2>
+
+<p id="insight">
+Add data to generate insights.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section id="about" class="page" style="display:none">
+
+<div class="card">
+
+<h2>About the Project</h2>
+
+<p>
+<b>Topic:</b>
+Solid Waste Generation & Segregation Data Analytics
+</p>
+
+<p>
+<b>Objective:</b>
+To analyze the amount and categories of solid waste generated
+and understand segregation patterns using data collection,
+calculations and visualizations.
+</p>
+
+<p>
+<b>Technology:</b>
+HTML, CSS, JavaScript and Chart.js.
+</p>
+
+<p>
+<b>CEP Application:</b>
+The dashboard can present waste trends clearly and can support
+better understanding of waste-management patterns.
+</p>
+
+</div>
+
+</section>
+
+</main>
+
+
+<footer>
+CEP Project • Solid Waste Generation & Segregation Data Analytics
+</footer>
+
+
+<script>
+
+let data = [
+
+{
+area:"Area A",
+wet:20,
+dry:12,
+plastic:5,
+paper:7,
+metal:3
+},
+
+{
+area:"Area B",
+wet:16,
+dry:15,
+plastic:8,
+paper:5,
+metal:2
+},
+
+{
+area:"Area C",
+wet:24,
+dry:10,
+plastic:4,
+paper:8,
+metal:4
+}
+
+];
+
+
+let barChart;
+let pieChart;
+
+
+function go(id){
+
+document
+.querySelectorAll('.page')
+.forEach(x => x.style.display='none');
+
+document.getElementById(id).style.display='block';
+
+if(id === 'dashboard'){
+    updateDashboard();
+}
+
+window.scrollTo(0,0);
+
+}
+
+
+function addData(){
+
+let area =
+document.getElementById('area').value.trim()
+|| "New Area";
+
+
+let obj = {
+
+area:area,
+
+wet:
+Number(document.getElementById('wet').value) || 0,
+
+dry:
+Number(document.getElementById('dry').value) || 0,
+
+plastic:
+Number(document.getElementById('plastic').value) || 0,
+
+paper:
+Number(document.getElementById('paper').value) || 0,
+
+metal:
+Number(document.getElementById('metal').value) || 0
+
+};
+
+
+data.push(obj);
+
+renderRows();
+
+go('dashboard');
+
+}
+
+
+function sum(x){
+
+return x.wet +
+x.dry +
+x.plastic +
+x.paper +
+x.metal;
+
+}
+
+
+function renderRows(){
+
+document.getElementById('rows').innerHTML =
+
+data.map(x => `
+
+<tr>
+
+<td>${x.area}</td>
+
+<td>${x.wet}</td>
+
+<td>${x.dry}</td>
+
+<td>${x.plastic}</td>
+
+<td>${x.paper}</td>
+
+<td>${x.metal}</td>
+
+<td>${sum(x)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+function updateDashboard(){
+
+let categories = [
+'wet',
+'dry',
+'plastic',
+'paper',
+'metal'
+];
+
+
+let values =
+categories.map(category =>
+data.reduce(
+(total,item) =>
+total + item[category],
+0
+)
+);
+
+
+let total =
+values.reduce(
+(a,b) => a+b,
+0
+);
+
+
+document.getElementById('total')
+.textContent = total.toFixed(1);
+
+
+document.getElementById('wetTotal')
+.textContent = values[0].toFixed(1);
+
+
+document.getElementById('dryTotal')
+.textContent = values[1].toFixed(1);
+
+
+document.getElementById('records')
+.textContent = data.length;
+
+
+if(barChart){
+    barChart.destroy();
+}
+
+
+if(pieChart){
+    pieChart.destroy();
+}
+
+
+barChart = new Chart(
+
+document.getElementById('barChart'),
+
+{
+
+type:'bar',
+
+data:{
+
+labels:[
+'Wet',
+'Dry',
+'Plastic',
+'Paper',
+'Metal'
+],
+
+datasets:[
+
+{
+
+label:'Waste (kg)',
+
+data:values
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false
+
+}
+
+}
+
+);
+
+
+pieChart = new Chart(
+
+document.getElementById('pieChart'),
+
+{
+
+type:'doughnut',
+
+data:{
+
+labels:[
+'Wet',
+'Dry',
+'Plastic',
+'Paper',
+'Metal'
+],
+
+datasets:[
+
+{
+
+data:values
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false
+
+}
+
+}
+
+);
+
+
+let maxIndex =
+values.indexOf(
+Math.max(...values)
+);
+
+
+let maxCategory =
+categories[maxIndex];
+
+
+document.getElementById('insight')
+.textContent =
+
+`The highest recorded waste category is
+${maxCategory.toUpperCase()} waste
+(${Math.max(...values).toFixed(1)} kg).
+The dashboard helps compare waste categories
+and understand segregation patterns.`;
+
+}
+
+
+renderRows();
+
+updateDashboard();
+
+</script>
+
+</body>
+</html>
