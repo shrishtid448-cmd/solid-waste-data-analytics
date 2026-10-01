@@ -4,152 +4,166 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Solid Waste Data Analytics</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Smart Waste Management</title>
 
 <style>
-*{
-    box-sizing:border-box;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f7f6;
-    color:#17332a;
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f8f5;
+  color: #222;
 }
 
-header{
-    background:#176b4d;
-    color:white;
-    padding:25px 18px;
-    text-align:center;
+header {
+  background: #176b3a;
+  color: white;
+  padding: 18px;
+  text-align: center;
 }
 
-header h1{
-    margin:0 0 8px;
-    font-size:28px;
+header h1 {
+  margin-bottom: 5px;
 }
 
-header p{
-    margin:0;
+nav {
+  background: white;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-nav{
-    display:flex;
-    gap:8px;
-    justify-content:center;
-    flex-wrap:wrap;
-    background:white;
-    padding:12px;
-    position:sticky;
-    top:0;
-    z-index:5;
-    box-shadow:0 2px 8px #0001;
+nav button {
+  border: none;
+  background: none;
+  margin: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-nav button{
-    border:0;
-    background:#e5f2ec;
-    color:#176b4d;
-    padding:10px 14px;
-    border-radius:8px;
-    font-weight:bold;
+.page {
+  display: none;
+  padding: 30px 18px;
+  max-width: 900px;
+  margin: auto;
 }
 
-main{
-    max-width:1100px;
-    margin:auto;
-    padding:18px;
+.active {
+  display: block;
 }
 
-.hero,
-.card{
-    background:white;
-    border-radius:14px;
-    padding:20px;
-    margin-bottom:18px;
-    box-shadow:0 3px 12px #00000012;
+.hero {
+  text-align: center;
+  padding: 35px 10px;
 }
 
-.hero h2{
-    margin-top:0;
+.hero h2 {
+  font-size: 30px;
+  margin-bottom: 15px;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-    gap:14px;
+.card {
+  background: white;
+  padding: 25px;
+  margin: 20px auto;
+  border-radius: 15px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
-.kpi{
-    padding:18px;
-    border-radius:12px;
-    background:#eaf5ef;
+.question {
+  margin: 20px 0;
 }
 
-.kpi b{
-    display:block;
-    font-size:27px;
-    color:#176b4d;
-    margin-top:6px;
+.question label {
+  display: block;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-label{
-    display:block;
-    font-weight:bold;
-    margin:10px 0 5px;
+select,
+input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
-input{
-    width:100%;
-    padding:11px;
-    border:1px solid #ccd8d2;
-    border-radius:8px;
+.main-btn {
+  background: #176b3a;
+  color: white;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
 }
 
-button.primary{
-    background:#176b4d;
-    color:white;
-    border:0;
-    padding:12px 18px;
-    border-radius:8px;
-    font-weight:bold;
-    margin-top:14px;
+.main-btn:hover {
+  background: #0f522c;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
+.result {
+  display: none;
+  margin-top: 25px;
+  padding: 25px;
+  background: #f0faf3;
+  border-radius: 12px;
 }
 
-th,
-td{
-    border:1px solid #d9e1dd;
-    padding:9px;
-    text-align:center;
+.result h3 {
+  margin-bottom: 15px;
 }
 
-th{
-    background:#eaf5ef;
+.result p {
+  margin: 10px 0;
 }
 
-.chartbox{
-    position:relative;
-    height:330px;
+.badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  background: #dff5e5;
 }
 
-.small{
-    color:#60756c;
-    font-size:14px;
+.action {
+  background: white;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
 }
 
-footer{
-    text-align:center;
-    padding:25px;
-    color:#60756c;
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.feature {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  margin-top: 30px;
+  background: #176b3a;
+  color: white;
 }
 </style>
 </head>
@@ -157,561 +171,514 @@ footer{
 <body>
 
 <header>
-    <h1>♻️ Solid Waste Data Analytics</h1>
-    <p>Generation & Segregation Analysis Dashboard</p>
+  <h1>♻️ Smart Waste Management</h1>
+  <p>AI-Based Waste Segregation & Data Analytics</p>
 </header>
 
 <nav>
-    <button onclick="go('home')">Home</button>
-    <button onclick="go('entry')">Data Entry</button>
-    <button onclick="go('dashboard')">Dashboard</button>
-    <button onclick="go('about')">About</button>
+  <button onclick="showPage('home')">🏠 Home</button>
+  <button onclick="showPage('checker')">🤖 Waste Checker</button>
+  <button onclick="showPage('dashboard')">📊 Dashboard</button>
+  <button onclick="showPage('about')">ℹ️ About</button>
 </nav>
 
-<main>
 
-<!-- HOME -->
+<!-- HOME / STARTING QUESTION PAGE -->
 
-<section id="home" class="page">
+<section id="home" class="page active">
 
-<div class="hero">
+  <div class="hero">
 
-<h2>Solid Waste Generation & Segregation Data Analytics</h2>
+    <h2>How can we help you today?</h2>
 
-<p>
-This project collects sample waste data and uses data analytics
-and visualization to understand waste generation and segregation patterns.
-</p>
+    <p>
+      Answer a few simple questions to understand your waste
+      and learn how to manage it properly.
+    </p>
 
-<div class="grid">
+  </div>
 
-<div class="kpi">
-    <span>Project Type</span>
-    <b>Data Science</b>
-</div>
+  <div class="card">
 
-<div class="kpi">
-    <span>Waste Categories</span>
-    <b>5</b>
-</div>
+    <h3>Question 1</h3>
 
-<div class="kpi">
-    <span>Analysis</span>
-    <b>Dashboard</b>
-</div>
+    <div class="question">
+      <p><strong>What do you want to check?</strong></p>
 
-</div>
+      <label>
+        <input type="radio" name="purpose" value="waste">
+        My Waste
+      </label>
 
-</div>
+      <label>
+        <input type="radio" name="purpose" value="statistics">
+        Waste Statistics
+      </label>
 
-<div class="card">
+      <label>
+        <input type="radio" name="purpose" value="prediction">
+        Future Waste Prediction
+      </label>
 
-<h2>How it works</h2>
+    </div>
 
-<p>
-1. Enter waste data →
-2. Calculate totals →
-3. Visualize categories →
-4. Observe segregation patterns →
-5. Generate useful insights.
-</p>
 
-<p class="small">
-This website currently uses demo data. Real data can be added through the Data Entry section.
-</p>
+    <div class="question">
 
-</div>
+      <p><strong>What information do you want?</strong></p>
+
+      <label>
+        <input type="checkbox" id="recycleInfo">
+        Is this waste recyclable?
+      </label>
+
+      <label>
+        <input type="checkbox" id="categoryInfo">
+        What category does it belong to?
+      </label>
+
+      <label>
+        <input type="checkbox" id="actionInfo">
+        What should I do with it?
+      </label>
+
+    </div>
+
+    <button class="main-btn" onclick="startAnalysis()">
+      Continue →
+    </button>
+
+  </div>
+
+  <div class="feature-grid">
+
+    <div class="feature">
+      <h3>🤖 AI</h3>
+      <p>Waste classification</p>
+    </div>
+
+    <div class="feature">
+      <h3>♻️ Recycling</h3>
+      <p>Check recyclability</p>
+    </div>
+
+    <div class="feature">
+      <h3>📊 Analytics</h3>
+      <p>Understand waste patterns</p>
+    </div>
+
+    <div class="feature">
+      <h3>🔮 Prediction</h3>
+      <p>Future waste estimation</p>
+    </div>
+
+  </div>
 
 </section>
 
 
-<!-- DATA ENTRY -->
+<!-- WASTE CHECKER -->
 
-<section id="entry" class="page" style="display:none">
+<section id="checker" class="page">
 
-<div class="card">
+  <div class="card">
 
-<h2>Enter Waste Data</h2>
+    <h2>🤖 Waste Checker</h2>
 
-<div class="grid">
+    <p>
+      Select the waste item you want to analyze.
+    </p>
 
-<div>
-<label>Area / Location</label>
-<input id="area" placeholder="e.g. Chembur">
-</div>
+    <label><strong>Select Waste Item</strong></label>
 
-<div>
-<label>Wet Waste (kg)</label>
-<input id="wet" type="number" min="0" value="10">
-</div>
+    <select id="wasteItem">
 
-<div>
-<label>Dry Waste (kg)</label>
-<input id="dry" type="number" min="0" value="7">
-</div>
+      <option value="">-- Select Waste --</option>
 
-<div>
-<label>Plastic (kg)</label>
-<input id="plastic" type="number" min="0" value="3">
-</div>
+      <option value="plastic">
+        Plastic Bottle
+      </option>
 
-<div>
-<label>Paper (kg)</label>
-<input id="paper" type="number" min="0" value="4">
-</div>
+      <option value="paper">
+        Paper / Newspaper
+      </option>
 
-<div>
-<label>Metal (kg)</label>
-<input id="metal" type="number" min="0" value="2">
-</div>
+      <option value="cardboard">
+        Cardboard
+      </option>
 
-</div>
+      <option value="food">
+        Food Waste
+      </option>
 
-<button class="primary" onclick="addData()">
-Add Data
-</button>
+      <option value="metal">
+        Metal Can
+      </option>
 
-</div>
+      <option value="glass">
+        Glass Bottle
+      </option>
+
+      <option value="ewaste">
+        Electronic Waste
+      </option>
+
+      <option value="other">
+        Other Waste
+      </option>
+
+    </select>
+
+    <button class="main-btn" onclick="checkWaste()">
+      🔍 Analyze Waste
+    </button>
 
 
-<div class="card">
+    <div id="wasteResult" class="result"></div>
 
-<h3>Entered Records</h3>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Area</th>
-<th>Wet</th>
-<th>Dry</th>
-<th>Plastic</th>
-<th>Paper</th>
-<th>Metal</th>
-<th>Total</th>
-</tr>
-
-</thead>
-
-<tbody id="rows"></tbody>
-
-</table>
-
-</div>
+  </div>
 
 </section>
 
 
 <!-- DASHBOARD -->
 
-<section id="dashboard" class="page" style="display:none">
+<section id="dashboard" class="page">
 
-<div class="grid">
+  <div class="card">
 
-<div class="kpi">
-    Total Waste (kg)
-    <b id="total">0</b>
-</div>
+    <h2>📊 Waste Analytics Dashboard</h2>
 
-<div class="kpi">
-    Wet Waste
-    <b id="wetTotal">0</b>
-</div>
+    <p>
+      Demo dashboard — actual survey data will be added after
+      data collection.
+    </p>
 
-<div class="kpi">
-    Dry Waste
-    <b id="dryTotal">0</b>
-</div>
+    <div class="feature-grid">
 
-<div class="kpi">
-    Records
-    <b id="records">0</b>
-</div>
+      <div class="feature">
+        <h2>120 kg</h2>
+        <p>Total Waste</p>
+      </div>
 
-</div>
+      <div class="feature">
+        <h2>55%</h2>
+        <p>Wet Waste</p>
+      </div>
 
+      <div class="feature">
+        <h2>45%</h2>
+        <p>Dry Waste</p>
+      </div>
 
-<div class="card">
+      <div class="feature">
+        <h2>38%</h2>
+        <p>Recyclable</p>
+      </div>
 
-<h2>Waste Category Analysis</h2>
+    </div>
 
-<div class="chartbox">
-<canvas id="barChart"></canvas>
-</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>Waste Composition</h2>
-
-<div class="chartbox">
-<canvas id="pieChart"></canvas>
-</div>
-
-</div>
+  </div>
 
 
-<div class="card">
+  <div class="card">
 
-<h2>Key Insights</h2>
+    <h2>🔮 ML Waste Prediction</h2>
 
-<p id="insight">
-Add data to generate insights.
-</p>
+    <p>
+      Future prediction will be generated using collected
+      historical waste data.
+    </p>
 
-</div>
+    <p>
+      <strong>Status:</strong>
+      Waiting for survey data.
+    </p>
+
+  </div>
 
 </section>
 
 
 <!-- ABOUT -->
 
-<section id="about" class="page" style="display:none">
+<section id="about" class="page">
 
-<div class="card">
+  <div class="card">
 
-<h2>About the Project</h2>
+    <h2>ℹ️ About This Project</h2>
 
-<p>
-<b>Topic:</b>
-Solid Waste Generation & Segregation Data Analytics
-</p>
+    <p>
+      This project focuses on Solid Waste Generation and
+      Segregation Data Analytics.
+    </p>
 
-<p>
-<b>Objective:</b>
-To analyze the amount and categories of solid waste generated
-and understand segregation patterns using data collection,
-calculations and visualizations.
-</p>
+    <br>
 
-<p>
-<b>Technology:</b>
-HTML, CSS, JavaScript and Chart.js.
-</p>
+    <p>
+      The system aims to help users identify different types
+      of waste, understand recyclability and learn appropriate
+      waste-management practices.
+    </p>
 
-<p>
-<b>CEP Application:</b>
-The dashboard can present waste trends clearly and can support
-better understanding of waste-management patterns.
-</p>
+    <br>
 
-</div>
+    <h3>Technologies</h3>
+
+    <p>
+      HTML, CSS, JavaScript, Machine Learning and Data Analytics.
+    </p>
+
+  </div>
 
 </section>
 
-</main>
-
 
 <footer>
-CEP Project • Solid Waste Generation & Segregation Data Analytics
+
+  <p>♻️ Smart Waste Management | CEP Data Science Project</p>
+
 </footer>
 
 
 <script>
 
-let data = [
+function showPage(pageId) {
 
-{
-area:"Area A",
-wet:20,
-dry:12,
-plastic:5,
-paper:7,
-metal:3
-},
+  const pages = document.querySelectorAll(".page");
 
-{
-area:"Area B",
-wet:16,
-dry:15,
-plastic:8,
-paper:5,
-metal:2
-},
+  pages.forEach(function(page) {
+    page.classList.remove("active");
+  });
 
-{
-area:"Area C",
-wet:24,
-dry:10,
-plastic:4,
-paper:8,
-metal:4
+  document.getElementById(pageId).classList.add("active");
+
+  window.scrollTo(0,0);
 }
 
-];
 
+function startAnalysis() {
 
-let barChart;
-let pieChart;
+  const purpose = document.querySelector(
+    'input[name="purpose"]:checked'
+  );
 
+  if (!purpose) {
+    alert("Please answer Question 1.");
+    return;
+  }
 
-function go(id){
+  if (purpose.value === "waste") {
 
-document
-.querySelectorAll('.page')
-.forEach(x => x.style.display='none');
+    showPage("checker");
 
-document.getElementById(id).style.display='block';
+  }
 
-if(id === 'dashboard'){
-    updateDashboard();
-}
+  else if (purpose.value === "statistics") {
 
-window.scrollTo(0,0);
+    showPage("dashboard");
+
+  }
+
+  else if (purpose.value === "prediction") {
+
+    showPage("dashboard");
+
+    alert(
+      "ML prediction will be available after collecting real survey data."
+    );
+
+  }
 
 }
 
 
-function addData(){
+function checkWaste() {
 
-let area =
-document.getElementById('area').value.trim()
-|| "New Area";
+  const item =
+    document.getElementById("wasteItem").value;
 
-
-let obj = {
-
-area:area,
-
-wet:
-Number(document.getElementById('wet').value) || 0,
-
-dry:
-Number(document.getElementById('dry').value) || 0,
-
-plastic:
-Number(document.getElementById('plastic').value) || 0,
-
-paper:
-Number(document.getElementById('paper').value) || 0,
-
-metal:
-Number(document.getElementById('metal').value) || 0
-
-};
+  const result =
+    document.getElementById("wasteResult");
 
 
-data.push(obj);
+  if (!item) {
 
-renderRows();
+    result.style.display = "block";
 
-go('dashboard');
+    result.innerHTML =
+      "<p>Please select a waste item first.</p>";
+
+    return;
+  }
+
+
+  const wasteData = {
+
+    plastic: {
+
+      name: "Plastic Bottle",
+
+      category: "Dry Waste",
+
+      recyclable: "Usually Yes ♻️",
+
+      action:
+        "Keep it separate from wet waste. Empty and keep it clean where appropriate, then send it through a suitable recyclable-waste collection route."
+
+    },
+
+
+    paper: {
+
+      name: "Paper / Newspaper",
+
+      category: "Dry Waste",
+
+      recyclable: "Usually Yes ♻️",
+
+      action:
+        "Keep paper dry and separate from wet waste. It can generally be sent for paper recycling."
+
+    },
+
+
+    cardboard: {
+
+      name: "Cardboard",
+
+      category: "Dry Waste",
+
+      recyclable: "Usually Yes ♻️",
+
+      action:
+        "Keep cardboard dry and separate. Flatten it where practical and send it through recyclable-waste collection."
+
+    },
+
+
+    food: {
+
+      name: "Food Waste",
+
+      category: "Wet / Organic Waste",
+
+      recyclable: "No — Compostable ♻️",
+
+      action:
+        "Keep food waste separate from dry waste. Where facilities are available, it can be sent for composting or organic-waste processing."
+
+    },
+
+
+    metal: {
+
+      name: "Metal Can",
+
+      category: "Dry Waste",
+
+      recyclable: "Usually Yes ♻️",
+
+      action:
+        "Keep metal separate from wet waste and send it through an appropriate recyclable-waste collection route."
+
+    },
+
+
+    glass: {
+
+      name: "Glass Bottle",
+
+      category: "Dry Waste",
+
+      recyclable: "Usually Yes ♻️",
+
+      action:
+        "Keep glass separate and handle it carefully. Send it through an appropriate collection or recycling route."
+
+    },
+
+
+    ewaste: {
+
+      name: "Electronic Waste",
+
+      category: "E-Waste",
+
+      recyclable: "Special Recycling ♻️",
+
+      action:
+        "Do not mix e-waste with ordinary household waste. Use an authorised e-waste collection or recycling route."
+
+    },
+
+
+    other: {
+
+      name: "Other Waste",
+
+      category: "Needs Identification",
+
+      recyclable: "Cannot determine",
+
+      action:
+        "Check the item's material and local waste-management guidance before disposal."
+
+    }
+
+  };
+
+
+  const data = wasteData[item];
+
+
+  result.style.display = "block";
+
+
+  result.innerHTML = `
+
+    <h3>🤖 Waste Analysis Result</h3>
+
+    <p>
+      <strong>Detected Item:</strong>
+      ${data.name}
+    </p>
+
+    <p>
+      <strong>Category:</strong>
+      ${data.category}
+    </p>
+
+    <p>
+      <strong>Recyclability:</strong>
+      <span class="badge">
+        ${data.recyclable}
+      </span>
+    </p>
+
+    <div class="action">
+
+      <strong>💡 What should I do?</strong>
+
+      <p>
+        ${data.action}
+      </p>
+
+    </div>
+
+    <br>
+
+    <small>
+      This is the prototype classification system.
+      Final AI image classification will be connected
+      in the next stage.
+    </small>
+
+  `;
 
 }
-
-
-function sum(x){
-
-return x.wet +
-x.dry +
-x.plastic +
-x.paper +
-x.metal;
-
-}
-
-
-function renderRows(){
-
-document.getElementById('rows').innerHTML =
-
-data.map(x => `
-
-<tr>
-
-<td>${x.area}</td>
-
-<td>${x.wet}</td>
-
-<td>${x.dry}</td>
-
-<td>${x.plastic}</td>
-
-<td>${x.paper}</td>
-
-<td>${x.metal}</td>
-
-<td>${sum(x)}</td>
-
-</tr>
-
-`).join('');
-
-}
-
-
-function updateDashboard(){
-
-let categories = [
-'wet',
-'dry',
-'plastic',
-'paper',
-'metal'
-];
-
-
-let values =
-categories.map(category =>
-data.reduce(
-(total,item) =>
-total + item[category],
-0
-)
-);
-
-
-let total =
-values.reduce(
-(a,b) => a+b,
-0
-);
-
-
-document.getElementById('total')
-.textContent = total.toFixed(1);
-
-
-document.getElementById('wetTotal')
-.textContent = values[0].toFixed(1);
-
-
-document.getElementById('dryTotal')
-.textContent = values[1].toFixed(1);
-
-
-document.getElementById('records')
-.textContent = data.length;
-
-
-if(barChart){
-    barChart.destroy();
-}
-
-
-if(pieChart){
-    pieChart.destroy();
-}
-
-
-barChart = new Chart(
-
-document.getElementById('barChart'),
-
-{
-
-type:'bar',
-
-data:{
-
-labels:[
-'Wet',
-'Dry',
-'Plastic',
-'Paper',
-'Metal'
-],
-
-datasets:[
-
-{
-
-label:'Waste (kg)',
-
-data:values
-
-}
-
-]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false
-
-}
-
-}
-
-);
-
-
-pieChart = new Chart(
-
-document.getElementById('pieChart'),
-
-{
-
-type:'doughnut',
-
-data:{
-
-labels:[
-'Wet',
-'Dry',
-'Plastic',
-'Paper',
-'Metal'
-],
-
-datasets:[
-
-{
-
-data:values
-
-}
-
-]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false
-
-}
-
-}
-
-);
-
-
-let maxIndex =
-values.indexOf(
-Math.max(...values)
-);
-
-
-let maxCategory =
-categories[maxIndex];
-
-
-document.getElementById('insight')
-.textContent =
-
-`The highest recorded waste category is
-${maxCategory.toUpperCase()} waste
-(${Math.max(...values).toFixed(1)} kg).
-The dashboard helps compare waste categories
-and understand segregation patterns.`;
-
-}
-
-
-renderRows();
-
-updateDashboard();
 
 </script>
 
 </body>
-</html>
+    </html>
