@@ -1,0 +1,683 @@
+
+import os
+import sqlite3
+from datetime import date, datetime
+
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+# ==========================================
+# SOLID WASTE GENERATION AND SEGREGATION
+# DATA ANALYTICS
+# ==========================================
+
+APP_TITLE = "Solid Waste Generation and Segregation Data Analytics"
+DB_PATH = os.getenv("WASTE_DB_PATH", "solid_waste.db")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-this-demo-password")
+
+WASTE_CATEGORIES = [
+    "Wet", "Dry", "Plastic", "Paper",
+    "Metal", "Glass", "Other"
+]
+
+COMPLAINT_TYPES = [
+    "Garbage not collected",
+    "Overflowing dustbin",
+    "Waste dumped in public area",
+    "Segregation issue",
+    "Other"
+]
+
+STATUSES = [
+    "Submitted", "Under Review", "Assigned",
+    "In Progress", "Resolved", "Reopened"
+]
+
+st.set_page_config(
+    page_title=APP_TITLE,
+    page_icon="♻️",
+    layout="wide"
+)
+
+
+# ==========================================
+# DATABASE
+# ==========================================
+
+def get_connection():
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def now_text():
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def init_db():
+    with get_connection() as conn:
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS waste_records (
+            record_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            submitter_name TEXT,
+            area TEXT NOT NULL,
+            waste_category TEXT NOT NULL,
+            quantity_kg REAL NOT NULL,
+            record_date TEXT NOT NULL,
+            notes TEXT,
+            created_at TEXT NOT NULL
+        )
+        """)
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS complaints (
+            complaint_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            submitter_name TEXT,
+            area TEXT NOT NULL,
+            complaint_type TEXT NOT NULL,
+            description TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'Submitted',
+            assigned_to TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """)
+
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS complaint_history (
+            history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            complaint_id INTEGER NOT NULL,
+            old_status TEXT,
+            new_status TEXT NOT NULL,
+            note TEXT,
+            changed_at TEXT NOT NULL,
+            FOREIGN KEY (complaint_id)
+                REFERENCES complaints(complaint_id)
+        )
+        """)
+
+
+def load_data(table):
+    allowed_tables = {
+        "waste_records",
+        "complaints",
+        "complaint_history"
+    }
+
+    if table not in allowed_tables:
+        raise ValueError("Invalid table name")
+
+    with get_connection() as conn:
+        return pd.read_sql_query(
+            f"SELECT * FROM {table}", conn
+        )
+
+
+init_db()
+
+
+# ==========================================
+# SIDEBAR AND NAVIGATION
+# ==========================================
+
+st.sidebar.title("♻️ Waste Analytics")
+
+page = st.sidebar.radio(
+    "Choose a page",
+    [
+        "Home",
+        "Submit Waste Data",
+        "Analytics Dashboard",
+        "Register Complaint",
+        "Track Complaint",
+        "Admin Panel"
+    ]
+)
+
+st.sidebar.markdown("---")
+st.sidebar.caption(
+    "College project prototype. "
+    "Not an official municipal service."
+)
+
+
+# ==========================================
+# HOME PAGE
+# ==========================================
+
+if page == "Home":
+
+    st.title("♻️ Solid Waste Generation and Segregation Data Analytics")
+
+    st.write("""
+    Welcome to the Solid Waste Analytics Platform!
+
+    This project helps users record waste generation,
+    understand waste segregation patterns, view analytics,
+    and report local waste collection problems.
+    """)
+
+    waste_df = load_data("waste_records")
+    complaint_df = load_data("complaints")
+
+    total_waste = (
+        waste_df["quantity_kg"].sum()
+        if not waste_df.empty else 0
+    )
+
+    unresolved = (
+        int((complaint_df["status"] != "Resolved").sum())
+        if not complaint_df.empty else 0
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Waste Records", len(waste_df))
+    col2.metric("Total Waste", f"{total_waste:,.1f} kg")
+    col3.metric("Unresolved Complaints", unresolved)
+
+    st.subheader("Project Modules")
+
+    st.markdown("""
+    - **Waste Data Submission:** Record waste type, quantity,
+      area and observation date.
+    - **Waste Segregation:** Classify records by waste category.
+    - **Analytics Dashboard:** View charts and area-wise trends.
+    - **Basic Prediction:** Estimate future waste from historical data.
+    - **Complaint Management:** Register and track waste-related issues.
+    - **Admin Panel:** Review complaints and update their status.
+    """)
+
+    st.info(
+        "Only data entered into this project is included in its "
+        "analytics. External municipal data is not automatically connected."
+    )
+
+
+# ==========================================
+# SUBMIT WASTE DATA
+# ==========================================
+
+elif page == "Submit Waste Data":
+
+    st.title("Submit Waste Generation Data")
+
+    with st.form("waste_form"):
+
+        name = st.text_input("Your name (optional)")
+        area = st.text_input("Area / locality *")
+
+        category = st.selectbox(
+            "Waste category",
+            WASTE_CATEGORIES
+        )
+
+        quantity = st.number_input(
+            "Waste quantity (kg)",
+            min_value=0.1,
+            max_value=100000.0,
+            value=1.0,
+            step=0.5
+        )
+
+        record_date = st.date_input(
+            "Date of observation",
+            value=date.today()
+        )
+
+        notes = st.text_area("Notes (optional)")
+
+        submitted = st.form_submit_button(
+            "Submit Waste Data"
+        )
+
+    if submitted:
+
+        if not area.strip():
+            st.error("Please enter your area.")
+        else:
+            with get_connection() as conn:
+                conn.execute("""
+                INSERT INTO waste_records (
+                    submitter_name, area, waste_category,
+                    quantity_kg, record_date, notes, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    name.strip() or None,
+                    area.strip(),
+                    category,
+                    float(quantity),
+                    record_date.isoformat(),
+                    notes.strip() or None,
+                    now_text()
+                ))
+
+            st.success("Waste data submitted successfully!")
+
+
+# ==========================================
+# ANALYTICS DASHBOARD
+# ==========================================
+
+elif page == "Analytics Dashboard":
+
+    st.title("Waste Analytics Dashboard")
+
+    df = load_data("waste_records")
+
+    if df.empty:
+
+        st.warning(
+            "No waste data available yet. "
+            "Submit some records to display analytics."
+        )
+
+    else:
+
+        df["quantity_kg"] = pd.to_numeric(
+            df["quantity_kg"], errors="coerce"
+        ).fillna(0)
+
+        df["record_date"] = pd.to_datetime(
+            df["record_date"], errors="coerce"
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "Total Waste",
+            f"{df['quantity_kg'].sum():,.1f} kg"
+        )
+
+        col2.metric(
+            "Waste Categories",
+            df["waste_category"].nunique()
+        )
+
+        col3.metric(
+            "Areas Covered",
+            df["area"].nunique()
+        )
+
+        # Category-wise analytics
+        category_data = (
+            df.groupby("waste_category", as_index=False)
+            ["quantity_kg"].sum()
+            .sort_values("quantity_kg", ascending=False)
+        )
+
+        st.subheader("Waste Quantity by Category")
+
+        fig1 = px.bar(
+            category_data,
+            x="waste_category",
+            y="quantity_kg",
+            labels={
+                "waste_category": "Waste Category",
+                "quantity_kg": "Quantity (kg)"
+            },
+            title="Category-wise Waste Generation"
+        )
+
+        st.plotly_chart(fig1, use_container_width=True)
+
+        # Area-wise analytics
+        area_data = (
+            df.groupby("area", as_index=False)
+            ["quantity_kg"].sum()
+            .sort_values("quantity_kg", ascending=False)
+        )
+
+        st.subheader("Area-wise Waste Generation")
+
+        fig2 = px.bar(
+            area_data,
+            x="area",
+            y="quantity_kg",
+            labels={
+                "area": "Area",
+                "quantity_kg": "Quantity (kg)"
+            },
+            title="Waste Quantity by Area"
+        )
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+        # Date-wise analytics
+        daily = (
+            df.dropna(subset=["record_date"])
+            .groupby("record_date", as_index=False)
+            ["quantity_kg"].sum()
+            .sort_values("record_date")
+        )
+
+        st.subheader("Waste Generation Over Time")
+
+        fig3 = px.line(
+            daily,
+            x="record_date",
+            y="quantity_kg",
+            markers=True,
+            labels={
+                "record_date": "Date",
+                "quantity_kg": "Quantity (kg)"
+            }
+        )
+
+        st.plotly_chart(fig3, use_container_width=True)
+
+        # Basic trend estimate
+        st.subheader("Indicative Future Waste Estimate")
+
+        st.caption(
+            "This is a simple trend estimate, not a validated ML model. "
+            "It requires records from multiple dates and may be inaccurate "
+            "when the dataset is small."
+        )
+
+        if len(daily) >= 3:
+
+            daily = daily.copy()
+
+            daily["day_number"] = (
+                daily["record_date"] - daily["record_date"].min()
+            ).dt.days
+
+            if daily["day_number"].nunique() >= 2:
+
+                slope, intercept = np.polyfit(
+                    daily["day_number"],
+                    daily["quantity_kg"],
+                    1
+                )
+
+                next_day = daily["day_number"].max() + 1
+
+                estimate = max(
+                    0.0,
+                    float(slope * next_day + intercept)
+                )
+
+                st.metric(
+                    "Indicative next-day estimate",
+                    f"{estimate:,.1f} kg"
+                )
+
+            else:
+                st.write(
+                    "Add records from different dates "
+                    "to calculate a trend."
+                )
+
+        else:
+            st.write(
+                "Submit records covering at least 3 dates "
+                "to display a basic trend estimate."
+            )
+
+        st.subheader("Waste Records")
+
+        st.dataframe(
+            df.sort_values("created_at", ascending=False),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.download_button(
+            "Download Waste Data CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="waste_records.csv",
+            mime="text/csv"
+        )
+
+
+# ==========================================
+# REGISTER COMPLAINT
+# ==========================================
+
+elif page == "Register Complaint":
+
+    st.title("Register a Waste-Related Complaint")
+
+    with st.form("complaint_form"):
+
+        name = st.text_input("Your name (optional)")
+        area = st.text_input("Area / locality *")
+
+        complaint_type = st.selectbox(
+            "Complaint type",
+            COMPLAINT_TYPES
+        )
+
+        description = st.text_area(
+            "Describe the problem *",
+            placeholder=(
+                "Example: Garbage has not been collected "
+                "from my area."
+            )
+        )
+
+        submitted = st.form_submit_button(
+            "Register Complaint"
+        )
+
+    if submitted:
+
+        if not area.strip() or not description.strip():
+
+            st.error(
+                "Area and complaint description are required."
+            )
+
+        else:
+
+            timestamp = now_text()
+
+            with get_connection() as conn:
+
+                cursor = conn.execute("""
+                INSERT INTO complaints (
+                    submitter_name, area, complaint_type,
+                    description, status, created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, 'Submitted', ?, ?)
+                """, (
+                    name.strip() or None,
+                    area.strip(),
+                    complaint_type,
+                    description.strip(),
+                    timestamp,
+                    timestamp
+                ))
+
+                complaint_id = cursor.lastrowid
+
+                conn.execute("""
+                INSERT INTO complaint_history (
+                    complaint_id, old_status, new_status,
+                    note, changed_at
+                )
+                VALUES (?, NULL, 'Submitted', ?, ?)
+                """, (
+                    complaint_id,
+                    "Complaint registered in project demo",
+                    timestamp
+                ))
+
+            st.success(
+                f"Complaint registered! Your ID is {complaint_id}."
+            )
+
+            st.warning(
+                "This complaint is saved only in this project. "
+                "It has NOT been sent to BMC or another official authority."
+            )
+
+
+# ==========================================
+# TRACK COMPLAINT
+# ==========================================
+
+elif page == "Track Complaint":
+
+    st.title("Track Complaint Status")
+
+    complaint_id = st.number_input(
+        "Enter your complaint ID",
+        min_value=1,
+        step=1
+    )
+
+    if st.button("Check Status"):
+
+        with get_connection() as conn:
+
+            complaint = conn.execute(
+                "SELECT * FROM complaints WHERE complaint_id = ?",
+                (int(complaint_id),)
+            ).fetchone()
+
+            history = conn.execute("""
+                SELECT old_status, new_status, note, changed_at
+                FROM complaint_history
+                WHERE complaint_id = ?
+                ORDER BY changed_at
+            """, (int(complaint_id),)).fetchall()
+
+        if complaint is None:
+
+            st.error("Complaint ID not found.")
+
+        else:
+
+            st.write(f"**Complaint ID:** {complaint['complaint_id']}")
+            st.write(f"**Area:** {complaint['area']}")
+            st.write(f"**Type:** {complaint['complaint_type']}")
+            st.write(f"**Status:** {complaint['status']}")
+            st.write(f"**Submitted:** {complaint['created_at']}")
+
+            st.subheader("Status History")
+
+            st.dataframe(
+                pd.DataFrame([dict(row) for row in history]),
+                use_container_width=True,
+                hide_index=True
+            )
+
+
+# ==========================================
+# ADMIN PANEL
+# ==========================================
+
+elif page == "Admin Panel":
+
+    st.title("Admin Panel")
+
+    st.warning(
+        "Demo authentication only. Configure a strong "
+        "ADMIN_PASSWORD before deployment. This is not "
+        "production-grade authentication."
+    )
+
+    password = st.text_input(
+        "Admin Password",
+        type="password"
+    )
+
+    if password != ADMIN_PASSWORD:
+
+        st.info(
+            "For a local demo only, the default password is "
+            "`change-this-demo-password`."
+        )
+
+    else:
+
+        complaints = load_data("complaints")
+
+        if complaints.empty:
+
+            st.write("No complaints submitted yet.")
+
+        else:
+
+            st.subheader("All Complaints")
+
+            st.dataframe(
+                complaints.sort_values(
+                    "created_at", ascending=False
+                ),
+                use_container_width=True,
+                hide_index=True
+            )
+
+            st.subheader("Update Complaint")
+
+            complaint_ids = (
+                complaints["complaint_id"].astype(int).tolist()
+            )
+
+            selected_id = st.selectbox(
+                "Complaint ID",
+                complaint_ids
+            )
+
+            current = complaints.loc[
+                complaints["complaint_id"] == selected_id
+            ].iloc[0]
+
+            current_status = current["status"]
+
+            new_status = st.selectbox(
+                "New Status",
+                STATUSES,
+                index=(
+                    STATUSES.index(current_status)
+                    if current_status in STATUSES else 0
+                )
+            )
+
+            assigned_to = st.text_input(
+                "Assigned to",
+                value=str(current.get("assigned_to") or "")
+            )
+
+            note = st.text_area("Update note")
+
+            if st.button("Save Update"):
+
+                timestamp = now_text()
+
+                with get_connection() as conn:
+
+                    conn.execute("""
+                    UPDATE complaints
+                    SET status = ?, assigned_to = ?, updated_at = ?
+                    WHERE complaint_id = ?
+                    """, (
+                        new_status,
+                        assigned_to.strip() or None,
+                        timestamp,
+                        int(selected_id)
+                    ))
+
+                    conn.execute("""
+                    INSERT INTO complaint_history (
+                        complaint_id, old_status, new_status,
+                        note, changed_at
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    """, (
+                        int(selected_id),
+                        current_status,
+                        new_status,
+                        note.strip() or None,
+                        timestamp
+                    ))
+
+                st.success("Complaint status updated.")
+                st.rerun()
